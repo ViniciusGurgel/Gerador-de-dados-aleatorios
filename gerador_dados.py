@@ -6,7 +6,6 @@ from banco_gerador import Criar_Banco_de_dados
 
 
 cnx = mysql.connector.connect(user='root', password='root', host='localhost')
-print("Conectado=", cnx.is_connected())
 
 nomes_masculinos = ["Alexandre", "Bruno", "Carlos", "Diego", "Eduardo", "Fábio", "Gustavo", "Henrique", "Igor",
                     "João", "Kleber", "Lucas", "Marcelo", "Nelson", "Otávio", "Pedro", "Rafael", "Sérgio",
@@ -327,16 +326,31 @@ def Codigo():
 
 cursor = cnx.cursor()
 create_BG = Criar_Banco_de_dados()
-create_BG.main()
+if int(input("Você ja criou a tabela?(digite 1 se sim e 0 não): ")) == 0:
+    create_BG.main()
 cursor.execute("USE BANCO_DATA_BASE;")
 cursor.execute("SET FOREIGN_KEY_CHECKS=0;")
-i = 900
-for z in range(300):
+i = 0
+for z in range(1000):
     x = create_marcas()
     chassi = create_chassis_numbers()
-    cursor.execute("INSERT INTO Automoveis VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s);", [generate_car_plate(), x['Marca'], x['Modelo'], x['Ano'], x['Valor'], '1', random.choice(Cor), x['Qtd_portas'], chassi])
+    if i < 600:
+        cursor.execute("INSERT INTO Automoveis VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s);", [generate_car_plate(), x['Marca'], x['Modelo'], x['Ano'], x['Valor'], '1', random.choice(Cor), x['Qtd_portas'], chassi])
+    else:
+        cursor.execute("INSERT INTO Automoveis VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s);", [generate_car_plate(), x['Marca'], x['Modelo'], x['Ano'], x['Valor'], '0', random.choice(Cor), x['Qtd_portas'], chassi])
     data_nascimento = gerar_data_nascimento()
     cpf = gerar_cpf()
+    while True:
+        try:
+            cursor.execute("SELECT 1 FROM Pessoa_fisica WHERE CPF = %s;", [cpf])
+            result = cursor.fetchone()
+            if result:
+                cpf = gerar_cpf()
+            else:
+                break
+        except Exception as e:
+            print("Erro ao verificar duplicidade de CPF:", e)
+            break
     if i < 300:
         cursor.execute("INSERT INTO Pessoa_Fisica VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",[cpf, gerar_rg(), gerar_cnh(), criar_nome(i), data_nascimento, calcular_idade(data_nascimento), endereco(), 'F', None, None, None])
     elif 300 <= i < 900:
@@ -348,6 +362,17 @@ for z in range(300):
     cursor.execute("INSERT INTO Locacao(Kilometragem,Preco,Forma_pagamento,fk_Cliente_Codigo_cliente) VALUES(%s,%s,%s,%s);", [Kilometragem(), preço(), pagamento(), i])
     sigla, nome = Sigla()
     cnpj = CNPJ()
+    while True:
+        try:
+            cursor.execute("SELECT 1 FROM Agencia WHERE CNPJ = %s;", [cnpj])
+            result = cursor.fetchone()
+            if result:
+                cnpj = CNPJ()
+            else:
+                break
+        except Exception as e:
+            print("Erro ao verificar duplicidade de CNPJ:", e)
+            break
     cursor.execute("INSERT INTO Agencia VALUES(%s,%s,%s,%s);", [Contato(), sigla, nome, cnpj])
     cursor.execute("INSERT INTO Posto_de_Atendimento VALUES(%s,%s,%s,%s,%s);", [Telefone(), Contato(), endereco(), '8h às 20h', cnpj])
     cursor.execute("INSERT INTO Seguro VALUES(%s,%s,%s,%s,%s);", [Codigo(), criar_nome(i), Agencia_de_seguro(), random.randint(300,700), i])
