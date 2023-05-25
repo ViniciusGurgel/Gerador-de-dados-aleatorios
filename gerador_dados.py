@@ -4,9 +4,6 @@ from datetime import datetime, timedelta
 from faker import Faker
 from banco_gerador import Criar_Banco_de_dados
 
-
-cnx = mysql.connector.connect(user='root', password='root', host='localhost')
-
 nomes_masculinos = ["Alexandre", "Bruno", "Carlos", "Diego", "Eduardo", "Fábio", "Gustavo", "Henrique", "Igor",
                     "João", "Kleber", "Lucas", "Marcelo", "Nelson", "Otávio", "Pedro", "Rafael", "Sérgio",
                     "Thiago", "Vitor", "Wagner", "Xavier", "Yuri", "Zé"]
@@ -323,9 +320,11 @@ def Codigo():
         codigo += str(random.randint(0, 9))
     return codigo
 
-
+usuario = input("Nome do usuario: ")
+senha = input("Senha: ")
+cnx = mysql.connector.connect(user=usuario, password=senha, host='localhost')
 cursor = cnx.cursor()
-create_BG = Criar_Banco_de_dados()
+create_BG = Criar_Banco_de_dados(usuario,senha)
 if int(input("Você ja criou a tabela?(digite 1 se sim e 0 não): ")) == 0:
     create_BG.main()
 cursor.execute("USE BANCO_DATA_BASE;")
