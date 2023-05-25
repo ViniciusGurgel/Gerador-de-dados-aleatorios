@@ -3,8 +3,8 @@ import mysql.connector
 
 
 class Criar_Banco_de_dados:
-    def __int__(self):
-        self.cnx = mysql.connector.connect(user='root', password='root', host='localhost')
+    def __init__(self,usuario,senha):
+        self.cnx = mysql.connector.connect(user=usuario, password=senha, host='localhost')
         print("Conectado= ", self.cnx.is_connected())
         self.cursor = self.cnx.cursor()
         self.cursor.execute("CREATE DATABASE IF NOT EXISTS BANCO_DATA_BASE;")
@@ -156,7 +156,6 @@ class Criar_Banco_de_dados:
         print("------Tabelas Alterada com sucesso!------")
 
     def main(self):
-        self.__int__()
         self.agencia()
         self.automoveis()
         self.locacao()
