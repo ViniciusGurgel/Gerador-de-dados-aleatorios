@@ -2,7 +2,7 @@ import mysql.connector
 import random
 from datetime import datetime, timedelta
 from faker import Faker
-from banco_gerador import Criar_Banco_de_dados
+from banco_gerador import CriarBanco
 
 nomes_masculinos = ["Alexandre", "Bruno", "Carlos", "Diego", "Eduardo", "Fábio", "Gustavo", "Henrique", "Igor",
                     "João", "Kleber", "Lucas", "Marcelo", "Nelson", "Otávio", "Pedro", "Rafael", "Sérgio",
@@ -37,13 +37,13 @@ def criar_nome(counter):
 
 
 def gerar_cpf():
-    cpf = [random.randint(0, 9) for i in range(9)]
+    cpf = [random.randint(0, 9) for _ in range(9)]
 
-    soma = sum([cpf[i] * (10 - i) for i in range(9)])
+    soma = sum([cpf[_] * (10 - i) for _ in range(9)])
     resto = 11 - (soma % 11)
     cpf.append(resto if resto <= 9 else 0)
 
-    soma = sum([cpf[i] * (11 - i) for i in range(10)])
+    soma = sum([cpf[_] * (11 - i) for _ in range(10)])
     resto = 11 - (soma % 11)
     cpf.append(resto if resto <= 9 else 0)
 
@@ -92,29 +92,29 @@ def endereco():
     return address
 
 
-def CNPJ():
+def cnpj():
     fake = Faker("pt_BR")
     cnpj = fake.cnpj()
     return cnpj
 
 
-def Telefone():
+def telefone():
     fake = Faker("pt_BR")
     telefone = fake.phone_number()
     return telefone
 
 
 def pagamento():
-    Pagamento = ['Boleto', 'Crédito', 'Débito', 'Pix', 'Dinheiro', 'Cheque']
-    return random.choice(Pagamento)
+    pagamento = ['Boleto', 'Crédito', 'Débito', 'Pix', 'Dinheiro', 'Cheque']
+    return random.choice(pagamento)
 
 
-def Plano():
+def plano():
     planos_aluguel = ['Econômico', 'Intermediário', 'Executivo', 'Fim de semana', 'Mensal', 'Fim de ano']
     return random.choice(planos_aluguel)
 
 
-def Kilometragem():
+def kilometragem():
     quilometragem = random.randint(0, 100000)
     return quilometragem
 
@@ -124,7 +124,7 @@ def preço():
     return preço1
 
 
-def Sigla():
+def sigla():
     a = random.randint(0, 24)
     siglas_agencias = ['HRT', 'ALM', 'AVR', 'BUD', 'DRZ', 'EZR', 'FXR', 'GOH', 'HTZ', 'JUC', 'KED', 'LZC', 'MCO', 'NDY',
                        'OKR', 'PTL', 'QEE', 'RNT', 'SXT', 'TYM', 'VNO', 'WEM', 'XTC', 'YPL', 'ZMC']
@@ -136,7 +136,7 @@ def Sigla():
     return siglas_agencias[a], nomes_agencias[a]
 
 
-def Contato():
+def contato():
     fake = Faker()
     return fake.email()
 
@@ -300,7 +300,7 @@ Marca = [{"Marca": "Ford",
          }]
 
 
-def Agencia_de_seguro():
+def agencia_de_seguro():
     fake = Faker()
     nome = fake.company()
     return nome
@@ -310,21 +310,22 @@ def data():
     year = random.randint(2017, 2022)
     month = random.randint(1, 12)
     day = random.randint(1, 29)
-    Data = f"{year}-{month}-{day}"
-    return Data
+    data = f"{year}-{month}-{day}"
+    return data
 
 
-def Codigo():
+def codigo():
     codigo = ""
-    for i in range(10):
+    for _ in range(10):
         codigo += str(random.randint(0, 9))
     return codigo
+
 
 usuario = input("Nome do usuario: ")
 senha = input("Senha: ")
 cnx = mysql.connector.connect(user=usuario, password=senha, host='localhost')
 cursor = cnx.cursor()
-create_BG = Criar_Banco_de_dados(usuario,senha)
+create_BG = CriarBanco(usuario, senha)
 if int(input("Você ja criou a tabela?(digite 1 se sim e 0 não): ")) == 0:
     create_BG.main()
 cursor.execute("USE BANCO_DATA_BASE;")
@@ -334,9 +335,13 @@ for z in range(1000):
     x = create_marcas()
     chassi = create_chassis_numbers()
     if i < 600:
-        cursor.execute("INSERT INTO Automoveis VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s);", [generate_car_plate(), x['Marca'], x['Modelo'], x['Ano'], x['Valor'], '1', random.choice(Cor), x['Qtd_portas'], chassi])
+        cursor.execute("INSERT INTO Automoveis VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+                       [generate_car_plate(), x['Marca'], x['Modelo'], x['Ano'], x['Valor'], '1', random.choice(Cor),
+                        x['Qtd_portas'], chassi])
     else:
-        cursor.execute("INSERT INTO Automoveis VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s);", [generate_car_plate(), x['Marca'], x['Modelo'], x['Ano'], x['Valor'], '0', random.choice(Cor), x['Qtd_portas'], chassi])
+        cursor.execute("INSERT INTO Automoveis VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+                       [generate_car_plate(), x['Marca'], x['Modelo'], x['Ano'], x['Valor'], '0', random.choice(Cor),
+                        x['Qtd_portas'], chassi])
     data_nascimento = gerar_data_nascimento()
     cpf = gerar_cpf()
     while True:
@@ -351,41 +356,54 @@ for z in range(1000):
             print("Erro ao verificar duplicidade de CPF:", e)
             break
     if i < 300:
-        cursor.execute("INSERT INTO Pessoa_Fisica VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",[cpf, gerar_rg(), gerar_cnh(), criar_nome(i), data_nascimento, calcular_idade(data_nascimento), endereco(), 'F', None, None, None])
+        cursor.execute("INSERT INTO Pessoa_Fisica VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+                       [cpf, gerar_rg(), gerar_cnh(), criar_nome(i), data_nascimento, calcular_idade(data_nascimento),
+                        endereco(), 'F', None, None, None])
     elif 300 <= i < 900:
-        cursor.execute("INSERT INTO Pessoa_Fisica VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",[cpf, gerar_rg(), gerar_cnh(), criar_nome(i), data_nascimento, calcular_idade(data_nascimento), endereco(), 'M', None, None, None])
+        cursor.execute("INSERT INTO Pessoa_Fisica VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+                       [cpf, gerar_rg(), gerar_cnh(), criar_nome(i), data_nascimento, calcular_idade(data_nascimento),
+                        endereco(), 'M', None, None, None])
     else:
-        cursor.execute("INSERT INTO Pessoa_Fisica VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",[cpf, gerar_rg(), gerar_cnh(), criar_nome(i), data_nascimento, calcular_idade(data_nascimento), endereco(), 'M', Codigo(),'3000.00','7h às 18h'])
-    cursor.execute("INSERT INTO Cliente(Plano,Telefone,fk_Pessoa_Fisica_CPF,fk_Pessoa_Juridica_CNPJ) VALUES(%s,%s,%s,%s);", [Plano(), Telefone(), cpf, 'NULL'])
-    cursor.execute("INSERT INTO Pessoa_juridica VALUES(%s,%s,%s,%s);", [CNPJ(), criar_nome(i), endereco(), criar_nome(i)])
-    cursor.execute("INSERT INTO Locacao(Kilometragem,Preco,Forma_pagamento,fk_Cliente_Codigo_cliente) VALUES(%s,%s,%s,%s);", [Kilometragem(), preço(), pagamento(), i])
-    sigla, nome = Sigla()
-    cnpj = CNPJ()
+        cursor.execute("INSERT INTO Pessoa_Fisica VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+                       [cpf, gerar_rg(), gerar_cnh(), criar_nome(i), data_nascimento, calcular_idade(data_nascimento),
+                        endereco(), 'M', codigo(), '3000.00', '7h às 18h'])
+    cursor.execute(
+        "INSERT INTO Cliente(Plano,Telefone,fk_Pessoa_Fisica_CPF,fk_Pessoa_Juridica_CNPJ) VALUES(%s,%s,%s,%s);",
+        [plano(), telefone(), cpf, 'NULL'])
+    cursor.execute("INSERT INTO Pessoa_juridica VALUES(%s,%s,%s,%s);",
+                   [cnpj(), criar_nome(i), endereco(), criar_nome(i)])
+    cursor.execute(
+        "INSERT INTO Locacao(Kilometragem,Preco,Forma_pagamento,fk_Cliente_Codigo_cliente) VALUES(%s,%s,%s,%s);",
+        [kilometragem(), preço(), pagamento(), i])
+    Sigla, nome = sigla()
+    CNPJ = cnpj()
     while True:
         try:
-            cursor.execute("SELECT 1 FROM Agencia WHERE CNPJ = %s;", [cnpj])
+            cursor.execute("SELECT 1 FROM Agencia WHERE CNPJ = %s;", [CNPJ])
             result = cursor.fetchone()
             if result:
-                cnpj = CNPJ()
+                CNPJ = cnpj()
             else:
                 break
         except Exception as e:
             print("Erro ao verificar duplicidade de CNPJ:", e)
             break
-    cursor.execute("INSERT INTO Agencia VALUES(%s,%s,%s,%s);", [Contato(), sigla, nome, cnpj])
-    cursor.execute("INSERT INTO Posto_de_Atendimento VALUES(%s,%s,%s,%s,%s);", [Telefone(), Contato(), endereco(), '8h às 20h', cnpj])
-    cursor.execute("INSERT INTO Seguro VALUES(%s,%s,%s,%s,%s);", [Codigo(), criar_nome(i), Agencia_de_seguro(), random.randint(300,700), i])
+    cursor.execute("INSERT INTO Agencia VALUES(%s,%s,%s,%s);", [contato(), Sigla, nome, CNPJ])
+    cursor.execute("INSERT INTO Posto_de_Atendimento VALUES(%s,%s,%s,%s,%s);",
+                   [telefone(), contato(), endereco(), '8h às 20h', CNPJ])
+    cursor.execute("INSERT INTO Seguro VALUES(%s,%s,%s,%s,%s);",
+                   [codigo(), criar_nome(i), agencia_de_seguro(), random.randint(300, 700), i])
     if i >= 900:
-        cursor.execute("INSERT INTO Possui VALUES(%s,%s);", [chassi, cnpj])
+        cursor.execute("INSERT INTO Possui VALUES(%s,%s);", [chassi, CNPJ])
         if i < 950:
-            cursor.execute("INSERT INTO Entrega VALUES(%s,%s,%s);", [cnpj, i, data()])
+            cursor.execute("INSERT INTO Entrega VALUES(%s,%s,%s);", [CNPJ, i, data()])
         else:
-            cursor.execute("INSERT INTO Retirada VALUES(%s,%s,%s);", [cnpj, i, data()])
-        cursor.execute("INSERT INTO Contrata VALUES(%s,%s);", [cpf, cnpj])
+            cursor.execute("INSERT INTO Retirada VALUES(%s,%s,%s);", [CNPJ, i, data()])
+        cursor.execute("INSERT INTO Contrata VALUES(%s,%s);", [cpf, CNPJ])
         cursor.execute(f"INSERT INTO Tem VALUES(%s,%s);", [i, chassi])
     i += 1
 
 cnx.commit()
 cursor.close()
 cnx.close()
-print("DONE")
+print("Dados falsos inserido com sucesso!")
