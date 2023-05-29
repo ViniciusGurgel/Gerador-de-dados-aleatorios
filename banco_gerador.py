@@ -1,9 +1,8 @@
 import mysql.connector
 
 
-
-class Criar_Banco_de_dados:
-    def __init__(self,usuario,senha):
+class CriarBanco:
+    def __init__(self, usuario, senha):
         self.cnx = mysql.connector.connect(user=usuario, password=senha, host='localhost')
         print("Conectado= ", self.cnx.is_connected())
         self.cursor = self.cnx.cursor()
@@ -41,7 +40,8 @@ class Criar_Banco_de_dados:
         Kilometragem INT,
         Preco DECIMAL,
         Forma_pagamento VARCHAR(50),
-        fk_Cliente_Codigo_Cliente INT);'''
+        fk_Cliente_Codigo_Cliente INT,
+        CONSTRAINT FK_Locacao_2 FOREIGN KEY (fk_Cliente_Codigo_Cliente) REFERENCES Cliente (Codigo_Cliente) ON DELETE CASCADE);'''
         self.cursor.execute(sql)
         print("------Tabela Locação criada com sucesso!------")
 
@@ -76,7 +76,9 @@ class Criar_Banco_de_dados:
         Plano VARCHAR(50),
         Telefone VARCHAR(50),
         fk_Pessoa_Fisica_CPF VARCHAR(50),
-        fk_Pessoa_Juridica_CNPJ VARCHAR(50));'''
+        fk_Pessoa_Juridica_CNPJ VARCHAR(50),
+        CONSTRAINT FK_Cliente_3 FOREIGN KEY (fk_Pessoa_Fisica_CPF) REFERENCES Pessoa_Fisica (CPF) ON DELETE CASCADE,
+        CONSTRAINT FK_Cliente_4 FOREIGN KEY (fk_Pessoa_Juridica_CNPJ) REFERENCES Pessoa_Juridica (CNPJ) ON DELETE CASCADE);'''
         self.cursor.execute(sql)
         print("------Tabela Cliente criada com sucesso!------")
 
@@ -86,7 +88,8 @@ class Criar_Banco_de_dados:
         nome VARCHAR(50),
         Agencia_de_seguro VARCHAR(50),
         Valor DECIMAL,
-        fk_Locacao_Codigo_locacao INT);'''
+        fk_Locacao_Codigo_locacao INT,
+        CONSTRAINT FK_Seguro_2 FOREIGN KEY (fk_Locacao_Codigo_locacao) REFERENCES Locacao (Codigo_locacao) ON DELETE CASCADE);'''
         self.cursor.execute(sql)
         print("------Tabela Seguro criada com sucesso!------")
 
@@ -96,28 +99,38 @@ class Criar_Banco_de_dados:
         E_mail_para_contato VARCHAR(50),
         Endereco VARCHAR(120),
         Horario_Func VARCHAR(50),
-        fk_Agencia_CNPJ VARCHAR(50));'''
+        fk_Agencia_CNPJ VARCHAR(50),
+        CONSTRAINT FK_Atendimento FOREIGN KEY(fk_Agencia_CNPJ) REFERENCES Agencia (CNPJ) ON DELETE CASCADE);'''
         self.cursor.execute(sql)
         print("------Tabela Posto de Atedimento criada com sucesso!------")
 
     def possui(self):
         sql = '''CREATE TABLE IF NOT EXISTS Possui (
         fk_Agencia_CNPJ VARCHAR(50),
-        fk_Automoveis_chassi VARCHAR(50));'''
+        fk_Automoveis_chassi VARCHAR(50),
+        PRIMARY KEY(fk_Agencia_CNPJ,fk_Automoveis_chassi),
+        CONSTRAINT FK_Possui_1 FOREIGN KEY (fk_Agencia_CNPJ) REFERENCES Agencia (CNPJ) ON DELETE CASCADE,
+        CONSTRAINT FK_Possui_2 FOREIGN KEY (fk_Automoveis_chassi) REFERENCES Automoveis (chassi) ON DELETE CASCADE);'''
         self.cursor.execute(sql)
         print("------Tabela Possui criada com sucesso!------")
 
     def tem(self):
         sql = '''CREATE TABLE IF NOT EXISTS Tem (
         fk_Locacao_Codigo_locacao INT,
-        fk_Automoveis_chassi VARCHAR(50));'''
+        fk_Automoveis_chassi VARCHAR(50),
+        PRIMARY KEY(fk_Locacao_Codigo_locacao,fk_Automoveis_chassi),
+        CONSTRAINT FK_Tem_1 FOREIGN KEY (fk_Locacao_Codigo_locacao) REFERENCES Locacao (Codigo_locacao) ON DELETE CASCADE,
+        CONSTRAINT FK_Tem_2 FOREIGN KEY (fk_Automoveis_chassi) REFERENCES Automoveis (chassi) ON DELETE CASCADE);'''
         self.cursor.execute(sql)
         print("------Tabela Tem criada com sucesso!------")
 
     def contrata(self):
         sql = '''CREATE TABLE IF NOT EXISTS Contrata (
         fk_Agencia_CNPJ VARCHAR(50),
-        fk_Pessoa_Fisica_CPF VARCHAR(50));'''
+        fk_Pessoa_Fisica_CPF VARCHAR(50),
+        PRIMARY KEY(fk_Agencia_CNPJ,fk_Pessoa_Fisica_CPF),
+        CONSTRAINT FK_Contrata_1 FOREIGN KEY (fk_Agencia_CNPJ) REFERENCES Agencia (CNPJ) ON DELETE RESTRICT,
+        CONSTRAINT FK_Contrata_2 FOREIGN KEY (fk_Pessoa_Fisica_CPF) REFERENCES Pessoa_Fisica (CPF) ON DELETE CASCADE);'''
         self.cursor.execute(sql)
         print("------Tabela Contrata criada com sucesso!------")
 
@@ -125,7 +138,10 @@ class Criar_Banco_de_dados:
         sql = '''CREATE TABLE IF NOT EXISTS Retirada (
         fk_Agencia_CNPJ VARCHAR(50),
         fk_Locacao_Codigo_locacao INT,
-        Data_retiradaautomoveisautomoveis DATE);'''
+        PRIMARY KEY(fk_Agencia_CNPJ,fk_Locacao_Codigo_locacao),
+        Data_retiradaautomoveisautomoveis DATE,
+        CONSTRAINT FK_Retirada_1 FOREIGN KEY (fk_Agencia_CNPJ) REFERENCES Agencia (CNPJ) ON DELETE CASCADE,
+        CONSTRAINT FK_Retirada_2 FOREIGN KEY (fk_Locacao_Codigo_locacao) REFERENCES Locacao (Codigo_locacao) ON DELETE CASCADE);'''
         self.cursor.execute(sql)
         print("------Tabela Retirada criada com sucesso!------")
 
@@ -133,27 +149,12 @@ class Criar_Banco_de_dados:
         sql = '''CREATE TABLE IF NOT EXISTS Entrega (
         fk_Agencia_CNPJ VARCHAR(50),
         fk_Locacao_Codigo_locacao INT,
-        Data_entrega DATE);'''
+        PRIMARY KEY(fk_Agencia_CNPJ,fk_Locacao_Codigo_locacao),
+        Data_entrega DATE,
+        CONSTRAINT FK_Entrega_1 FOREIGN KEY (fk_Agencia_CNPJ) REFERENCES Agencia (CNPJ) ON DELETE CASCADE,
+        CONSTRAINT FK_Entrega_2 FOREIGN KEY (fk_Locacao_Codigo_locacao) REFERENCES Locacao (Codigo_locacao) ON DELETE CASCADE);'''
         self.cursor.execute(sql)
         print("------Tabela Entrega criada com sucesso!------")
-
-    def alter_tables(self):
-        self.cursor.execute("ALTER TABLE Locacao ADD CONSTRAINT FK_Locacao_2 FOREIGN KEY (fk_Cliente_Codigo_Cliente) REFERENCES Cliente (Codigo_Cliente) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Cliente ADD CONSTRAINT FK_Cliente_3 FOREIGN KEY (fk_Pessoa_Fisica_CPF) REFERENCES Pessoa_Fisica (CPF) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Cliente ADD CONSTRAINT FK_Cliente_4 FOREIGN KEY (fk_Pessoa_Juridica_CNPJ) REFERENCES Pessoa_Juridica (CNPJ) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Seguro ADD CONSTRAINT FK_Seguro_2 FOREIGN KEY (fk_Locacao_Codigo_locacao) REFERENCES Locacao (Codigo_locacao) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Possui ADD CONSTRAINT FK_Possui_1 FOREIGN KEY (fk_Agencia_CNPJ) REFERENCES Agencia (CNPJ) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Possui ADD CONSTRAINT FK_Possui_2 FOREIGN KEY (fk_Automoveis_chassi) REFERENCES Automoveis (chassi) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Tem ADD CONSTRAINT FK_Tem_1 FOREIGN KEY (fk_Locacao_Codigo_locacao) REFERENCES Locacao (Codigo_locacao) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Tem ADD CONSTRAINT FK_Tem_2 FOREIGN KEY (fk_Automoveis_chassi) REFERENCES Automoveis (chassi) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Contrata ADD CONSTRAINT FK_Contrata_1 FOREIGN KEY (fk_Agencia_CNPJ) REFERENCES Agencia (CNPJ) ON DELETE RESTRICT;")
-        self.cursor.execute("ALTER TABLE Contrata ADD CONSTRAINT FK_Contrata_2 FOREIGN KEY (fk_Pessoa_Fisica_CPF) REFERENCES Pessoa_Fisica (CPF) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Retirada ADD CONSTRAINT FK_Retirada_1 FOREIGN KEY (fk_Agencia_CNPJ) REFERENCES Agencia (CNPJ) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Retirada ADD CONSTRAINT FK_Retirada_2 FOREIGN KEY (fk_Locacao_Codigo_locacao) REFERENCES Locacao (Codigo_locacao) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Entrega ADD CONSTRAINT FK_Entrega_1 FOREIGN KEY (fk_Agencia_CNPJ) REFERENCES Agencia (CNPJ) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Entrega ADD CONSTRAINT FK_Entrega_2 FOREIGN KEY (fk_Locacao_Codigo_locacao) REFERENCES Locacao (Codigo_locacao) ON DELETE CASCADE;")
-        self.cursor.execute("ALTER TABLE Posto_de_atendimento ADD CONSTRAINT FK_Atendimento FOREIGN KEY(fk_Agencia_CNPJ) REFERENCES Agencia (CNPJ) ON DELETE CASCADE;")
-        print("------Tabelas Alterada com sucesso!------")
 
     def main(self):
         self.agencia()
@@ -169,9 +170,7 @@ class Criar_Banco_de_dados:
         self.contrata()
         self.retirada()
         self.entrega()
-        self.alter_tables()
-
-
-
-
-
+        self.cnx.commit()
+        print("------Tabelas Construidas e alteradas com sucesso!------")
+        self.cursor.close()
+        self.cnx.close()
