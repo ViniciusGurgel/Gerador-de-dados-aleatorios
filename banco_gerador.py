@@ -139,7 +139,7 @@ class CriarBanco:
         fk_Agencia_CNPJ VARCHAR(50),
         fk_Locacao_Codigo_locacao INT,
         PRIMARY KEY(fk_Agencia_CNPJ,fk_Locacao_Codigo_locacao),
-        Data_retiradaautomoveisautomoveis DATE,
+        Data_retira DATE,
         CONSTRAINT FK_Retirada_1 FOREIGN KEY (fk_Agencia_CNPJ) REFERENCES Agencia (CNPJ) ON DELETE CASCADE,
         CONSTRAINT FK_Retirada_2 FOREIGN KEY (fk_Locacao_Codigo_locacao) REFERENCES Locacao (Codigo_locacao) ON DELETE CASCADE);'''
         self.cursor.execute(sql)
