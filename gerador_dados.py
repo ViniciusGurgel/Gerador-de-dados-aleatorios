@@ -370,8 +370,20 @@ for z in range(1000):
     cursor.execute(
         "INSERT INTO Cliente(Plano,Telefone,fk_Pessoa_Fisica_CPF,fk_Pessoa_Juridica_CNPJ) VALUES(%s,%s,%s,%s);",
         [plano(), telefone(), cpf, 'NULL'])
+    CNPJ_juridico = cnpj()
+    while True:
+        try:
+            cursor.execute("SELECT 1 FROM Pessoa_juridica WHERE CNPJ = %s;", [CNPJ_juridico])
+            result = cursor.fetchone()
+            if result:
+                CNPJ_juridico = cnpj()
+            else:
+                break
+        except Exception as e:
+            print("Erro ao verificar duplicidade de CNPJ:", e)
+            break
     cursor.execute("INSERT INTO Pessoa_juridica VALUES(%s,%s,%s,%s);",
-                   [cnpj(), criar_nome(i), endereco(), criar_nome(i)])
+                   [CNPJ_juridico, criar_nome(i), endereco(), criar_nome(i)])
     cursor.execute(
         "INSERT INTO Locacao(Kilometragem,Preco,Forma_pagamento,fk_Cliente_Codigo_cliente) VALUES(%s,%s,%s,%s);",
         [kilometragem(), preço(), pagamento(), i])
@@ -394,12 +406,12 @@ for z in range(1000):
     cursor.execute("INSERT INTO Seguro VALUES(%s,%s,%s,%s,%s);",
                    [codigo(), criar_nome(i), agencia_de_seguro(), random.randint(300, 700), i])
     if i >= 900:
-        cursor.execute("INSERT INTO Possui VALUES(%s,%s);", [chassi, CNPJ])
+        cursor.execute("INSERT INTO Possui VALUES(%s,%s);", [CNPJ, chassi])
         if i < 950:
             cursor.execute("INSERT INTO Entrega VALUES(%s,%s,%s);", [CNPJ, i, data()])
         else:
             cursor.execute("INSERT INTO Retirada VALUES(%s,%s,%s);", [CNPJ, i, data()])
-        cursor.execute("INSERT INTO Contrata VALUES(%s,%s);", [cpf, CNPJ])
+        cursor.execute("INSERT INTO Contrata VALUES(%s,%s);", [CNPJ, cpf])
         cursor.execute(f"INSERT INTO Tem VALUES(%s,%s);", [i, chassi])
     i += 1
 
