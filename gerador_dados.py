@@ -309,7 +309,7 @@ def agencia_de_seguro():
 def data():
     year = random.randint(2017, 2022)
     month = random.randint(1, 12)
-    day = random.randint(1, 29)
+    day = random.randint(1, 28)
     data = f"{year}-{month}-{day}"
     return data
 
